@@ -22,7 +22,7 @@ spec:
 
       - name: web-app
 
-        image: sadiqdockerhub/web-app:v1
+        image: sadiqsdockerhub/web-app:v1
         imagePullPolicy: Always 
 
         ports:
