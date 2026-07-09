@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -9,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build WAR') {
             steps {
                 sh 'mvn clean package'
             }
@@ -17,14 +21,40 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t webapp:v1 .'
+                sh '''
+                docker build -t sadiqsdockerhub/web-app:v1 .
+                '''
             }
         }
 
-        stage('Verify Image') {
+        stage('Docker Push') {
             steps {
-                sh 'docker images'
+                sh '''
+                docker push sadiqsdockerhub/web-app:v1
+                '''
             }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl apply -f k8s/deployment.yaml
+                kubectl apply -f k8s/service.yaml
+
+                kubectl rollout restart deployment/web-app
+                kubectl rollout status deployment/web-app
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful!'
+        }
+
+        failure {
+            echo 'Deployment Failed!'
         }
     }
 }
