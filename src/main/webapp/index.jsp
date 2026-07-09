@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2><%= "Build test" %></h2>
+<h2><%= "CI/CD Validation Test" %></h2>
 </body>
 </html>
